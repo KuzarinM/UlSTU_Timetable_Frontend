@@ -26,7 +26,7 @@
 					this.list = (await sql`SELECT * FROM "Group"`).rows;
 				}
 
-				this.list = this.list.sort((a,b)=>a.name.localeCompare(b.name)).slice(1)
+				this.list = this.list.sort((a,b)=>a.name.localeCompare(b.name))
 
 				this.dataLoaded = true
 			},
