@@ -81,8 +81,8 @@
 			<table class="panel table table-sm table-success table-bordered border-dark custom-class w-md-85" >
 				<thead>
 					<tr>
-						<th scope="col"></th>
-						<th scope="col" v-for="(item,index) in week[0]">
+						<th scope="col" class="mw-90"></th>
+						<th scope="col" class="mw-90" v-for="(item,index) in week[0]">
 							<H3 class="text-center"> {{ index + 1 }}-я</H3>
 							</th>
 					</tr>
@@ -92,7 +92,7 @@
 						<td scope="row">
 							<H3 class="text-center">{{this.dayOfWeek[di]}}</H3>
 						</td>
-						<td v-for="(pairs, pi) in day" :class="pairs!=null && pairs.some(x=>x.isDif == 2)?'table-active':''">
+						<td v-for="(pairs, pi) in day" :class="pairs!=null && pairs.some(x=>x.isDif == 2)?'table-active ':''">
 							<div v-if="pairs!=null">
 								<p class="text-wrap text-center" v-for="subject in pairs.filter	(x=>x.isDif!=0)" >
 									{{ subject.subject }} <br>
@@ -124,8 +124,11 @@
 <style scoped>
 @media only screen and (min-width: 768px) {
 	.custom-class {
-	table-layout: fixed;
 	align-self: center;
 	}
+}
+
+.mw-90{
+	min-width: 90px!important;
 }
 </style>
