@@ -77,7 +77,7 @@
 <template>
 	<article class="d-flex flex-column mx-auto" v-if="this.dataLoaded">
 		<div class="table-responsive d-flex flex-column justify-content-center" v-for="(week, wi) in this.timetable">
-			<h1 class="text-center">{{ wi==0?"Чётная неделя": "Нечётная неделя" }}</h1>
+			<h1 class="text-center">{{ wi!=0?"Чётная неделя": "Нечётная неделя" }}</h1>
 			<table class="panel table table-sm table-success table-bordered border-dark custom-class w-md-85" >
 				<thead>
 					<tr>
