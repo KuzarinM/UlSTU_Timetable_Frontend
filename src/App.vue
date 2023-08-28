@@ -13,7 +13,7 @@
   <header class="mx-1">
       <div class="">
         <nav class="navbar navbar-expand-sm navbar-light bg-light container m-2">
-          <a class="navbar-brand" href="#">Здесь могло быть ваше название</a>
+          <a class="navbar-brand" href="#">Самое быстрое расписание</a>
 
           <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="collapse"
            data-bs-target="#collapsibleNavId" aria-controls="collapsibleNavId" aria-expanded="false" aria-label="Toggle navigation">
@@ -21,7 +21,7 @@
           </button>
           <div class="collapse navbar-collapse" id="collapsibleNavId">
             <ul class="navbar-nav me-auto mt-2 mt-lg-0">
-              <div v-if="this.isAuthtorised()">
+              <!-- <div v-if="this.isAuthtorised()">
                 <li class="nav-item">
                   <a class="nav-link active" href="/user">Учётная запись</a>
                 </li>
@@ -39,7 +39,7 @@
                 <li class="nav-item">
                   <a class="nav-link active" href="/login">Войти</a>
                 </li>
-              </div>
+              </div> -->
               <li class="nav-item">
                   <form class="d-flex my-2 my-lg-0" action="/groups">
                     <input class="form-control me-sm-2" name="search" type="text" >
