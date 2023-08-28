@@ -40,6 +40,12 @@
                   <a class="nav-link active" href="/login">Войти</a>
                 </li>
               </div>
+              <li class="nav-item">
+                  <form class="d-flex my-2 my-lg-0" action="/groups">
+                    <input class="form-control me-sm-2" name="search" type="text" >
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Поиск</button>
+                  </form>
+                </li>
             </ul>
           </div>
       </nav>

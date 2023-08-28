@@ -2,14 +2,28 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Login from '../components/Login.vue'
 import UserInfo from '../components/UserInfo.vue'
 import Timetable from '../components/Timetable.vue'
+import Groups from '../components/Groups.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
+      path:"/",
+      redirect:"/groups"
+    },
+    {
+      path: '/groups',
+      name: 'groups',
+      component: Groups,
+      meta:{
+        authorized:false,
+        adminOnly:false
+      }
+    },
+    {
       path: '/timetable/:group',
       name: 'timetable',
-      component: Login,
+      component: Timetable,
       meta:{
         authorized:false,
         adminOnly:false
