@@ -78,7 +78,7 @@
 	<article class="d-flex flex-column mx-auto" v-if="this.dataLoaded">
 		<div class="table-responsive d-flex flex-column justify-content-center" v-for="(week, wi) in this.timetable">
 			<h1 class="text-center">{{ wi==0?"Чётная неделя": "Нечётная неделя" }}</h1>
-			<table class="panel table table-sm table-success table-bordered border-dark custom-class" >
+			<table class="panel table table-sm table-success table-bordered border-dark custom-class w-md-85" >
 				<thead>
 					<tr>
 						<th scope="col"></th>
@@ -94,7 +94,7 @@
 						</td>
 						<td v-for="(pairs, pi) in day" :class="pairs!=null && pairs.some(x=>x.isDif == 2)?'table-active':''">
 							<div v-if="pairs!=null">
-								<p class="text-wrap" v-for="subject in pairs.filter	(x=>x.isDif!=0)" >
+								<p class="text-wrap text-center" v-for="subject in pairs.filter	(x=>x.isDif!=0)" >
 									{{ subject.subject }} <br>
 									{{ subject.teacher }} <br>
 									{{ subject.place }}
@@ -122,9 +122,10 @@
 </template>
 
 <style scoped>
-.custom-class {
-   table-layout: fixed;
-   width: 85%;
-   align-self: center;
+@media only screen and (min-width: 768px) {
+	.custom-class {
+	table-layout: fixed;
+	align-self: center;
+	}
 }
 </style>
