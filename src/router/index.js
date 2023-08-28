@@ -1,25 +1,70 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import TimetableTable from "../components/TimetableTable.vue"
+import Login from '../components/Login.vue'
+import UserInfo from '../components/UserInfo.vue'
+import Timetable from '../components/Timetable.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path:"/",
-      name:"Timetable",
-      component: TimetableTable
-    }
-    // {
-    //   path: '/',
-    //   name: 'home',
-    //   component: HomeView
-    // },
-    // {
-    //   path: '/about',
-    //   name: 'about',
-
-    //   component: () => import('../views/AboutView.vue')
-    // }
+      path: '/timetable/:group',
+      name: 'timetable',
+      component: Login,
+      meta:{
+        authorized:false,
+        adminOnly:false
+      }
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: Login,
+      meta:{
+        authorized:false,
+        adminOnly:false
+      }
+    },
+    {
+      path: '/registration',
+      name: 'registration',
+      component: UserInfo,
+      meta:{
+        authorized:false,
+        adminOnly:false
+      },
+      props:{
+        isRegistration:true
+      }
+    },
+    {
+      path: '/user',
+      name: 'user',
+      component: UserInfo,
+      meta:{
+        authorized:true,
+        adminOnly:false
+      },
+      props:{
+        isRegistration:false
+      }
+    },
   ]
 })
+router.beforeEach(Check)
+
+function Check(to, from, next)
+{
+  if(to.meta.authorized && sessionStorage.getItem("token")===null){
+      next({
+        path: '/login'
+      })
+  }
+  if(to.meta.adminOnly && sessionStorage.getItem("role")!=="ADMIN"){
+    next({
+      path: from.path
+    })
+  }
+  next()
+}
+
 export default router
