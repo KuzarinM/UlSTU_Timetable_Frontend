@@ -9,6 +9,7 @@
 			return{
 				myGroup:Object,
 				dayOfWeek:["ПН","ВТ","СР","ЧТ","ПТ","СБ","ВС"],
+				pairTiming:["08:30-09:50","10:00-11:20","11:30-12:50","13:30-14:50","15:00-16:20","16:30-17:50","18:00-19:20","19:30-20:50"],
 				timetable:[
 					[
 						[null,null,null,null,null,null,null,null],//Пн
@@ -84,7 +85,8 @@
 						<th scope="col" class="mw-90"></th>
 						<th scope="col" class="mw-90" v-for="(item,index) in week[0]">
 							<H3 class="text-center"> {{ index + 1 }}-я</H3>
-							</th>
+							<h6 class="text-center">{{ this.pairTiming[index] }}</h6>
+						</th>
 					</tr>
 				</thead>
 				<tbody>
