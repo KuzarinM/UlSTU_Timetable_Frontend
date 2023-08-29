@@ -13,7 +13,9 @@
   <header class="mx-1">
       <div class="">
         <nav class="navbar navbar-expand-sm navbar-light bg-light container m-2">
-          <a class="navbar-brand" href="#">Самое быстрое расписание</a>
+          <a class="navbar-brand" href="#">
+            <img src="/timetable.ico" height="80" class="m-0">
+          </a>
 
           <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="collapse"
            data-bs-target="#collapsibleNavId" aria-controls="collapsibleNavId" aria-expanded="false" aria-label="Toggle navigation">
