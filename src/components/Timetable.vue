@@ -94,7 +94,7 @@
 						<td scope="row">
 							<H3 class="text-center">{{this.dayOfWeek[di]}}</H3>
 						</td>
-						<td v-for="(pairs, pi) in day" :class="pairs!=null && pairs.some(x=>x.isDif == 2)?'table-active ':''">
+						<td v-for="(pairs, pi) in day" :class="pairs!=null && pairs.some(x=>x.isDif != 1) ? 'table-active ':''">
 							<div v-if="pairs!=null">
 								<p class="text-wrap text-center" v-for="subject in pairs.filter	(x=>x.isDif!=0)" >
 									{{ subject.subject }} <br>
