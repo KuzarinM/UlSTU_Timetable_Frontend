@@ -118,14 +118,15 @@
 						</thead>
 						<tbody>
 							<tr v-for="(pairs, pi) in day.filter(x=>x!=null && x.filter(y=>y.isDif!=0).length > 0)">
-								<td :class="pairs!=null && pairs.some(x=>x.isDif != 1) ? 'table-active ':''"
-									v-for="subject in pairs.filter(x=>x.isDif!=0)">
-									<h6 class="fw-bold m-0">{{ pi+1 }} - {{ this.pairTiming[pi] }}</h6>
-									<p class="m-0">
-										{{ subject.subject }} <br>
-										{{ subject.teacher }} <br>
-										{{ subject.place }}
-									</p>
+								<td :class="pairs!=null && pairs.some(x=>x.isDif != 1) ? 'table-active ':''">
+									<h6 class="fw-bold m-0">{{ day.indexOf(pairs) +1 }} - {{ this.pairTiming[day.indexOf(pairs)] }}</h6>
+									<div v-for="subject in pairs.filter(x=>x.isDif!=0)">
+										<p class="m-0">
+											{{ subject.subject }} <br>
+											{{ subject.teacher }} <br>
+											{{ subject.place }}
+										</p>
+									</div>
 								</td>
 							</tr>
 							<tr v-if="!day.some(x => x != null && x.filter(y => y.isDif != 0).length > 0)">
