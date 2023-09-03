@@ -13,7 +13,7 @@
   <header class="mx-1">
       <div class="">
         <nav class="navbar navbar-expand-sm navbar-light bg-light container m-2">
-          <a class="navbar-brand" href="#">
+          <a class="navbar-brand" href="/">
             <img src="/timetable.ico" height="80" class="m-0">
           </a>
 
