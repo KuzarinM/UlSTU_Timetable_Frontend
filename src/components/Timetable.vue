@@ -78,6 +78,7 @@
 
 <template>
 	<article class="d-flex flex-column mx-auto" v-if="this.dataLoaded">
+		<h2 class="text-center">{{ this.myGroup.name }}</h2>
 		<div class="flex-column">
 			<div class="table-responsive d-flex flex-column justify-content-center" v-for="(week, wi) in this.timetable">
 				<h1 class="text-center">{{ wi!=0?"Чётная неделя": "Нечётная неделя" }}</h1>
@@ -140,7 +141,7 @@
 			
 	</article>
 	<div v-else-if="this.error==''">
-		<H1 class="text-center">Данные загружаются, пожалуйств подождите</H1>
+		<H1 class="text-center">Данные загружаются, пожалуйста подождите</H1>
 		<small>Нет, ну они правда грузятся. Не верите, ну я могу добавить гифку колечка вращающегося, так лучше что-ли будет.
 			 Быстрее всё равно не загрузится, ибо там идёт обращение к БД и конвертация. К слову, может это интернет просто не тянет?</small>
 	</div>
