@@ -8,9 +8,11 @@
 		data(){
 			return{
 				myGroup:Object,
+				startFirstWeek: new Date(2023, 8, 4),
 				dayOfWeek:["ПН","ВТ","СР","ЧТ","ПТ","СБ","ВС"],
 				dayOfWeekExtendet:["Понедельник","Вторник","Среда","Четверг","Пятница","Суббота","Воскресенье"],
 				pairTiming:["08:30-09:50","10:00-11:20","11:30-12:50","13:30-14:50","15:00-16:20","16:30-17:50","18:00-19:20","19:30-20:50"],
+				pairTimingInt:[[],[],[],[]],
 				timetable:[
 					[
 						[null,null,null,null,null,null,null,null],//Пн
@@ -61,17 +63,54 @@
 						subject: `${this.capitalizeFirstLetter(element.type)}. ${this.capitalizeFirstLetter(element.subject)}`,
 						teacher: element.teacher,
 						place: element.place,
-						isDif: element.isdifference 
+						isDif: element.isdifference,
+						type :  element.type
 					}) 
 				});
 
 				console.log(this.timetable)
 				this.dataLoaded = true;
-			}
+			},
+			GetPairClass(pairs, weekIndex, dayIndex, pairIndex){
+				var resout = `p-1 table-bordered border-dark `
+
+				if(pairs!=null){
+					if(pairs.some(x=>x.isDif != 1)) resout += 'table-active '
+
+					var tmp = pairs.filter(x=>x.isDif!=0)
+					if(tmp.length==1 || tmp.every(x=>x.type == tmp[0].type)){
+						switch(tmp[0].type){
+							case 'лек':
+								resout += "table-secondary "
+								break;
+							case 'пр':
+								resout += "table-warning "
+								break;
+							case 'лаб':
+								resout += "table-info "
+								break;
+						}
+					}
+				}
+
+				return resout
+			},
+			CheckCurentDate(week,day){
+				var tmp = (new Date(new Date().toDateString()) - this.getCurrentFirstWeek())/ (1000*60*60*24)
+				return (week*7+day == tmp) 
+			},
+			getCurrentFirstWeek(){
+				var tmp = new Date(this.startFirstWeek ) 
+				tmp.setDate(this.startFirstWeek.getDate() + parseInt((new Date(new Date().toDateString()) - this.startFirstWeek) /
+				 1209600000) * 14) //1000 * 60 * 60 * 24 * 14 = 1209600000
+				return tmp
+			},
+
 		},
 		async mounted(){
 			var process = this.process//Thanks vue for 'good' system of env. Without this do not work DB
 			await this.LoadData();
+			$(".current-day")[0].scrollIntoView({behavior: "smooth"})
 		}
 	}
 </script>
@@ -82,24 +121,26 @@
 		<div class="flex-column">
 			<div class="table-responsive d-flex flex-column justify-content-center" v-for="(week, wi) in this.timetable">
 				<h1 class="text-center">{{ wi!=0?"Чётная неделя": "Нечётная неделя" }}</h1>
-				<table class="d-none d-md-block panel table table-sm table-success table-bordered border-dark custom-class w-md-85 p-0" >
+				<div class="d-none d-md-block panel p-0 m-3 w-fit-content align-self-center">
+					<table class="table table-sm table-success table-bordered border-dark m-0 " >
 					<thead>
 						<tr>
-							<th scope="col" class="mw-90"></th>
-							<th scope="col" class="mw-90" v-for="(item,index) in week[0]">
+							<th class="p-0" scope="col" ></th>
+							<th class="p-1" scope="col" v-for="(item,index) in week[0]">
 								<H3 class="text-center"> {{ index + 1 }}-я</H3>
 								<h6 class="text-center">{{ this.pairTiming[index] }}</h6>
 							</th>
 						</tr>
 					</thead>
 					<tbody>
-						<tr class="" v-for="(day,di) in week">
+						<tr v-for="(day,di) in week" 
+							:class="this.CheckCurentDate(wi,di)? 'table-danger current-day table-bordered border-dark' : 'table-bordered border-dark' ">
 							<td scope="row">
 								<H3 class="text-center">{{this.dayOfWeek[di]}}</H3>
 							</td>
-							<td v-for="(pairs, pi) in day" :class="pairs!=null && pairs.some(x=>x.isDif != 1) ? 'table-active ':''">
-								<div v-if="pairs!=null && pairs.filter(x=>x.isDif!=0).length != 0">
-									<p class="text-wrap text-center" v-for="subject in pairs.filter(x=>x.isDif!=0)" >
+							<td v-for="(pairs, pi) in day" :class="this.GetPairClass(pairs, wi, di, pi)">
+								<div class="p-0 m-0" v-if="pairs!=null && pairs.filter(x=>x.isDif!=0).length != 0">
+									<p class="text-wrap text-center m-0" v-for="subject in pairs.filter(x=>x.isDif!=0)" >
 										{{ subject.subject }} <br>
 										{{ subject.teacher }} <br>
 										{{ subject.place }}
@@ -109,17 +150,20 @@
 							</td>
 						</tr>
 					</tbody>
-				</table><!--Это таблица для вывода в десктопной версии-->
+				</table>
+				</div>
+<!--Это таблица для вывода в десктопной версии-->
 				<div class="d-block d-md-none table-responsive panel p-0">
-					<table class="table table-success table-bordered border-dark mb-1" v-for="(day,di) in week">
+					<table :class="`table table-success table-bordered border-dark mb-1 
+						${this.CheckCurentDate(wi,di)? 'table-danger current-day' : '' }`" v-for="(day,di) in week" >
 						<thead>
 							<tr>
 								<th class="text-start" scope="col">{{ this.dayOfWeekExtendet[di]}}</th>
 							</tr>
 						</thead>
 						<tbody>
-							<tr v-for="(pairs, pi) in day.filter(x=>x!=null && x.filter(y=>y.isDif!=0).length > 0)">
-								<td :class="pairs!=null && pairs.some(x=>x.isDif != 1) ? 'table-active ':''">
+							<tr v-for="(pairs, pi) in day.filter(x=>x!=null && x.filter(y=>y.isDif!=0).length > 0)" >
+								<td :class="this.GetPairClass(pairs, wi, di, pi)">
 									<h6 class="fw-bold m-0">{{ day.indexOf(pairs) +1 }} - {{ this.pairTiming[day.indexOf(pairs)] }}</h6>
 									<div v-for="subject in pairs.filter(x=>x.isDif!=0)">
 										<p class="m-0">
@@ -138,8 +182,8 @@
 				</div><!--Это таблица для мобилок. Она иная и её концепция скопированна с мобильной версии распиания на LMS-->
 			</div>
 		</div>
-			
 	</article>
+	
 	<div v-else-if="this.error==''">
 		<H1 class="text-center">Данные загружаются, пожалуйста подождите</H1>
 		<small>Нет, ну они правда грузятся. Не верите, ну я могу добавить гифку колечка вращающегося, так лучше что-ли будет.
@@ -158,7 +202,11 @@
 	align-self: center;
 	}
 }
-
+.w-fit-content{
+	width: fit-content;
+}
+.current-day{
+}
 .mw-90{
 	min-width: 90px!important;
 }
