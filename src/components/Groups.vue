@@ -10,20 +10,53 @@
 			return{
 				list:[],
 				dataLoaded:false,
-				columnCount:1
+				columnCount:1,
+				area:"g"
 			}
 		},
 		methods:{
 			async LoadData(){
 
+				switch (this.$route.params.area) {
+					case "groups":
+						this.area = "g"
+						break;
+					case "teachers":
+						this.area = "t"
+						break;
+					case "places":
+						this.area = "p"
+						break;
+				}
 				var search = this.$route.query.search;
 
 				if(search != null && search != ""){
 					search += "%"
-					this.list = (await sql`SELECT * FROM "Group" WHERE LOWER(name) LIKE LOWER(${search})`).rows;
+					switch (this.area) {
+						case "g":
+							this.list = (await sql`SELECT * FROM "Group" WHERE LOWER(name) LIKE LOWER(${search})`).rows;
+							break;
+						case "t":
+							this.list = (await sql`SELECT * FROM teacher WHERE LOWER(name) LIKE LOWER(${search})`).rows;
+							break;
+						case "p":
+							this.list = (await sql`SELECT * FROM place WHERE LOWER(name) LIKE LOWER(${search})`).rows;
+							break;
+					}
+					
 				}
 				else{
-					this.list = (await sql`SELECT * FROM "Group"`).rows;
+					switch (this.area) {
+						case "g":
+							this.list = (await sql`SELECT * FROM "Group"`).rows;
+							break;
+						case "t":
+							this.list = (await sql`SELECT * FROM teacher`).rows;
+							break;
+						case "p":
+							this.list = (await sql`SELECT * FROM place`).rows;
+							break;
+					}
 				}
 
 				this.list = this.list.sort((a,b)=>a.name.localeCompare(b.name))
@@ -59,6 +92,4 @@
 </template>
 
 <style scoped>
-
-
 </style>

@@ -43,6 +43,15 @@
                 </li>
               </div> -->
               <li class="nav-item">
+                  <a class="nav-link active" href="/search/groups">Группы</a>
+              </li>
+              <li class="nav-item">
+                  <a class="nav-link active" href="/search/teachers">Преподаватели</a>
+              </li>
+              <li class="nav-item">
+                  <a class="nav-link active" href="/search/places">Аудитории</a>
+              </li>
+              <li class="nav-item">
                   <form class="d-flex my-2 my-lg-0" action="/groups">
                     <input class="form-control me-sm-2" name="search" type="text" >
                     <button class="btn btn-outline-success my-2 " type="submit">Поиск</button>

@@ -2,12 +2,16 @@
 	import $ from "jquery"; 
 	import APIHelper from "../mixins/APIHelper.js";
 	import {sql} from "@vercel/postgres";
+	import Pair from './Pair.vue'
     
 	export default{
 		mixins:[APIHelper],
+		components:{
+			Pair
+		},
 		data(){
 			return{
-				myGroup:Object,
+				myObject:Object,
 				startFirstWeek: new Date(2023, 8, 4),
 				dayOfWeek:["ПН","ВТ","СР","ЧТ","ПТ","СБ","ВС"],
 				dayOfWeekExtendet:["Понедельник","Вторник","Среда","Четверг","Пятница","Суббота","Воскресенье"],
@@ -33,7 +37,9 @@
 				],
 				dataLoaded:false,
 				error:"",
-				style:"default"
+				style:"default",
+				firstWeek:null,
+				today:null
 			}
 		},
 		methods:{
@@ -42,20 +48,11 @@
 			},
 			async LoadData(){
 				var group = this.$route.params.group
-				if(group != "" && group != null){
-					
-					this.myGroup =  (await sql`SELECT * FROM "Group" WHERE name = ${group};`).rows[0];
-					if(this.myGroup == null){
-						this.error = "Группа с таким названием не существует. Удивительно, согласен. Но вот так. Описались может? Если нет, то свяжитесь с главным по этой вот всей стстеме и передайте ему свиток с жалобой. Хотя, вероятно, он уже сейчас сидит и пишет очередной фикс, который закроет проблемму. Но лучше свиток то пердать, а то вдруг об этом баге до вас никто не слышал.."
-						return;
-					}
-				}
-				else{
-					this.error = "Строка запроса не верна. Вообще там после .../timetable/ должно идти название группы. Подумайте над этим."
-				}
-				console.log(this.myGroup)
+				var rows = await this.LoadObjectsFromDB(group);
+				console.log(this.myObject)
 
-				var rows = (await sql`SELECT * FROM Timetable WHERE gid = ${this.myGroup.id}`).rows
+				if(rows == null) return;
+				
 				rows.forEach(element => {
 					if(this.timetable[element.week?1:0][element.day][element.pair] == null){
 						this.timetable[element.week?1:0][element.day][element.pair] = []
@@ -66,52 +63,62 @@
 						place: element.place,
 						isDif: element.isdifference,
 						type :  element.type,
-						pairNumber: element.pair
+						pairNumber: element.pair,
+						group:element.group,
+						groups:[element.group],
+						places:[element.place],
+						teachers:[element.teacher]
 					}) 
 				});
 
 				console.log(this.timetable)
 				this.dataLoaded = true;
 			},
-			GetPairDivClass(pairs,weekIndex, dayIndex, pairIndex = null){
-				var tmp = 'p-1 '
-				var pn = pairIndex;
-				if(pairs!=null){
-					if(pairs.some(x=>x.isDif != 1)) tmp+= 'p-1 table-active '
-					pn = pairs[0].pairNumber
-				} 
-				if(pn!=null){
-					if(this.CheckCurentDateAndTime(weekIndex, dayIndex, pn)) tmp += "current-day "
-				}
+			async LoadObjectsFromDB(name){
+				if(name != "" && name != null){
 
-				return tmp
-			},
-			GetPairColorLine(subject, weekIndex, dayIndex, pairIndex){
-				switch(subject.type){
-					case 'лек':
-						return "lection opacity-70 "
-					case 'пр':
-						return "practic opacity-70 "
-					case 'лаб':
-						return "labwork opacity-70 "
+					const tmp = (await sql`
+						SELECT *, 'g' as type FROM "Group" WHERE name = ${name} UNION
+						SELECT *, 't' as type FROM teacher WHERE name = ${name} UNION
+						SELECT *, 'p' as type FROM place WHERE name = ${name}
+						`).rows[0]
+					if(tmp == null){
+						this.error = "C таким именем не существует ни групп, ни аудиторий, ни преподавателей. Удивительно, согласен. Но вот так. Описались может? Если нет, то свяжитесь с главным по этой вот всей стстеме и передайте ему свиток с жалобой. Хотя, вероятно, он уже сейчас сидит и пишет очередной фикс, который закроет проблемму. Но лучше свиток то пердать, а то вдруг об этом баге до вас никто не слышал.."
+						return null; 
+					}
+					this.myObject = tmp
+
+					switch(this.myObject.type){
+						case 'g':
+						return (await sql`SELECT * FROM Timetable WHERE gid = ${this.myObject.id}`).rows;
+						case 't':
+						return (await sql`SELECT * FROM Timetable WHERE tid = ${this.myObject.id}`).rows;
+						case 'p':
+						return (await sql`SELECT * FROM Timetable WHERE pid = ${this.myObject.id}`).rows;
+					}
+					this.error = "Что произошло? такого вообще не могло случится. Как ты сюда попал????"
+					return;
 				}
-				return "d-none"
+				this.error = "Строка запроса не верна. Вообще там после .../timetable/ должно идти название группы, имя преподавателя или номмер аудитории. Подумайте над этим."
+				return null;
 			},
-			CheckCurentDate(week,day, pair){
-				return(week*7+day == (new Date(new Date().toDateString()) - this.getCurrentFirstWeek())/ (1000*60*60*24))
+			CheckCurentDate(week,day){
+				//1000*60*60*24=86400000 Умножение менее затратно чем деление
+				return((week*7+day)*86400000 == (this.today - this.firstWeek))
 			},
 			CheckCurentDateAndTime(week, day, pair){
 				if(this.CheckCurentDate(week,day)){
 					var tmp = this.getTimeInt(new Date())
-					return (tmp>= this.pairTimingInt[pair] && ( this.pairTimingInt.length > (pair+1) && tmp < this.pairTimingInt[pair+1]))
+					return (tmp>= this.pairTimingInt[pair] &&
+					 		( this.pairTimingInt.length > (pair+1) && tmp < this.pairTimingInt[pair+1]))
 				}
 				return false
 			},
-			getCurrentFirstWeek(){
-				var tmp = new Date(this.startFirstWeek ) 
-				tmp.setDate(this.startFirstWeek.getDate() + parseInt((new Date(new Date().toDateString()) - this.startFirstWeek) /
-				 1209600000) * 14) //1000 * 60 * 60 * 24 * 14 = 1209600000
-				return tmp
+			GetCurrentFirstWeek(){
+				this.firstWeek = new Date(this.startFirstWeek ) 
+				this.firstWeek.setDate(this.startFirstWeek.getDate() + 
+					parseInt((this.today - this.startFirstWeek) / 1209600000) * 14) //1000 * 60 * 60 * 24 * 14 = 1209600000
+				return this.firstWeek
 			},
 			getTimeInt(date){
 				return date.getHours()*60 + date.getMinutes()
@@ -122,16 +129,31 @@
 					this.getTimeInt(new Date(`0000-01-01T${x.split("-")[0]}:00`))
 					))
 				console.log(this.pairTimingInt)
-			}
+			},
+			GetMyObjectName(){
+				switch (this.myObject.type) {
+					case "g":
+						return `Группа ${this.myObject.name}`
+					case "t":
+						return `Преподаватель ${this.myObject.name}`
+					case "p":
+						return `Аудитория ${this.myObject.name}`
 
+				}
+			}
 		},
 		async mounted(){
 			var process = this.process//Thanks vue for 'good' system of env. Without this do not work DB
-			await this.LoadData();
-			var current = $(".current-day")[0]
+
+			this.today = new Date(new Date().toDateString())
+			this.GetCurrentFirstWeek();
 
 			this.style = this.$route.query["style"] 
 			if(this.style == null) this.style = "default"
+
+			await this.LoadData();
+
+			var current = $(".current-day")[0]
 			if(current!=null){
 				current.scrollIntoView({behavior: "smooth"})
 			}
@@ -141,7 +163,7 @@
 
 <template>
 	<article class="d-flex flex-column mx-auto" v-if="this.dataLoaded">
-		<h2 class="text-center">{{ this.myGroup.name }}</h2>
+		<h2 class="text-center">{{ this.GetMyObjectName() }}</h2>
 		<div class="flex-column">
 			<div class="table-responsive d-flex flex-column justify-content-center" v-for="(week, wi) in this.timetable">
 				<h1 class="text-center">{{ wi!=0?"Чётная неделя": "Нечётная неделя" }}</h1>
@@ -163,19 +185,8 @@
 							<td scope="row">
 								<H3 class="text-center">{{this.dayOfWeek[di]}}</H3>
 							</td>
-							<td v-for="(pairs, pi) in day" :class="this.GetPairDivClass(pairs, wi, di, pi)">
-								<div class="p-0 m-0" v-if="pairs!=null && pairs.filter(x=>x.isDif!=0).length != 0" >
-									<div class="p-0 m-0" v-for="subject in pairs.filter(x=>x.isDif!=0)">
-										<hr :class="this.GetPairColorLine(subject, wi, di, pi)"/>
-										<p class="text-wrap text-center m-0"  >
-											{{ subject.subject }} <br>
-											{{ subject.teacher }} <br>
-											{{ subject.place }}
-										</p>
-									</div>
-								</div>
-								<p class="text-center " v-else>-</p>
-							</td>
+							<Pair v-for="(dayPairs, pi) in day" :pairs="dayPairs" :week-number="wi" :day-number="di" :pair-number="pi" 
+								:PairIsNowFunc="this.CheckCurentDateAndTime" :-is-desctop="true" :timetable-type="this.myObject.type"/>
 						</tr>
 					</tbody>
 				</table>
@@ -183,8 +194,8 @@
 				<!--Это таблица для мобилок. Она иная и её концепция скопированна с мобильной версии распиания на LMS-->
 				<div class="d-block d-md-none table-responsive panel p-0">
 					<table :class="`table table-bordered border-dark mb-1 ${this.style=='maxim'? 'table-success':''}`" v-for="(day,di) in week" >
-						<thead >
-							<tr >
+						<thead>
+							<tr>
 								<th :class="this.CheckCurentDate(wi,di)? 'labwork opacity-1 text-white' : ''" scope="col">
 									<p class="text-start opacity-1 ">{{ this.dayOfWeekExtendet[di]}}</p>
 								</th>
@@ -192,17 +203,10 @@
 						</thead>
 						<tbody>
 							<tr v-for="(pairs, pi) in day.filter(x=>x!=null && x.filter(y=>y.isDif!=0).length > 0)" >
-								<td :class="this.GetPairDivClass(pairs, wi, di)">
-									<h6 class="fw-bold m-0">{{ day.indexOf(pairs) +1 }} - {{ this.pairTiming[day.indexOf(pairs)] }}</h6>
-									<div v-for="subject in pairs.filter(x=>x.isDif!=0)">
-										<hr :class="this.GetPairColorLine(subject, wi, di, pi)"/>
-										<p class="m-0">
-											{{ subject.subject }} <br>
-											{{ subject.teacher }} <br>
-											{{ subject.place }}
-										</p>
-									</div>
-								</td>
+
+								<Pair :pairs="pairs" :week-number="wi" :day-number="di" :pair-number="day.indexOf(pairs)" 
+									:PairIsNowFunc="this.CheckCurentDateAndTime" :-is-desctop="false" :pair-timing="this.pairTiming"
+									:timetable-type="this.myObject.type"/>
 							</tr>
 							<tr v-if="!day.some(x => x != null && x.filter(y => y.isDif != 0).length > 0)">
 								<td>-</td>
@@ -232,19 +236,10 @@
 		align-self: center;
 	}
 }
-.w-fit-content{
-	width: fit-content;
-}
+
 .current-day{
 	border: solid;
 	border-width: thick;
 }
 
-hr {
-    display: block;
-    height: 10px;
-    border: 0;
-    margin: 0;
-    padding: 0;
-}
 </style>

@@ -9,11 +9,11 @@ const router = createRouter({
   routes: [
     {
       path:"/",
-      redirect:"/groups"
+      redirect:"/search/groups"
     },
     {
-      path: '/groups',
-      name: 'groups',
+      path: '/search/:area',
+      name: 'search',
       component: Groups,
       meta:{
         authorized:false,
