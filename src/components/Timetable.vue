@@ -192,7 +192,7 @@
 				</table>
 				</div>
 				<!--Это таблица для мобилок. Она иная и её концепция скопированна с мобильной версии распиания на LMS-->
-				<div class="d-block d-md-none table-responsive panel p-0">
+				<div class="d-block d-md-none table-responsive panel p-0 w-100">
 					<table :class="`table table-bordered border-dark mb-1 ${this.style=='maxim'? 'table-success':''}`" v-for="(day,di) in week" >
 						<thead>
 							<tr>

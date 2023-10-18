@@ -18,7 +18,7 @@
           </a>
 
           <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="collapse"
-           data-bs-target="#collapsibleNavId" aria-controls="collapsibleNavId" aria-expanded="false" aria-label="Toggle navigation">
+           data-bs-target="#collapsibleNavId" aria-controls="collapsibleNavId" aria-expanded="true" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
           <div class="collapse navbar-collapse" id="collapsibleNavId">
@@ -52,7 +52,7 @@
                   <a class="nav-link active" href="/search/places">Аудитории</a>
               </li>
               <li class="nav-item">
-                  <form class="d-flex my-2 my-lg-0" action="/groups">
+                  <form class="d-flex my-2 my-lg-0" >
                     <input class="form-control me-sm-2" name="search" type="text" >
                     <button class="btn btn-outline-success my-2 " type="submit">Поиск</button>
                   </form>
