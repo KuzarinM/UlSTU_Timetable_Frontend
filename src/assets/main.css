@@ -36,6 +36,27 @@ a,
 .w-100{
   width: 100%;
 }
+.mw-90{
+	min-width: 90px!important;
+}
+.lection{
+  background-color: #0d067f!important;
+}
+.practic{
+  background-color: #b20485!important;
+}
+.labwork{
+  background-color: #087eff!important;
+}
+.opacity-70{
+  opacity: 0.7!important;
+}
+.opacity-50{
+	opacity: 0.5!important;
+}
+.opacity-1{
+	opacity: 1!important;
+}
 
 @media only screen and (min-width: 768px) {
   .w-md-85{
