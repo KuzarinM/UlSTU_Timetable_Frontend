@@ -9,6 +9,7 @@
 			return{
 				cellTiming:["06:00-8:00","08:00-10:00","10:00-12:00","12:00-14:00","14:00-16:00","16:00-18:00","18:00-20:00","20:00-22:00"],
 				startFirstWeek: new Date(2023, 8, 4),
+				dayOfWeek:["ПН","ВТ","СР","ЧТ","ПТ","СБ","ВС"],
 				cellTimingInt:[],
 				pairTimingInt:[510,600,690,810,900,990,1080,1170],
 				firstWeek:null,
@@ -50,16 +51,15 @@
 
 				if(rows == null) return;
 
-				rows.forEach(element => {
+				for (let index = 0; index < 7; index++) {
+					this.timetable[0][index] = [[],[],[],[],[],[],[],[]]
+					this.timetable[1][index] = [[],[],[],[],[],[],[],[]]
+				}
+
+				rows.filter(x=>x.isdifference!=0).forEach(element => {
 
 					this.GetCellIndex(element).forEach(ind=>{
 						
-						if(this.timetable[element.week?1:0][element.day] == null){
-							this.timetable[element.week?1:0][element.day] = [null,null,null,null,null,null,null,null]
-						}
-						if(this.timetable[element.week?1:0][element.day][ind] == null){
-							this.timetable[element.week?1:0][element.day][ind] = []
-						}
 						this.timetable[element.week?1:0][element.day][ind].push({
 							subject: `${this.capitalizeFirstLetter(element.type)}. ${this.capitalizeFirstLetter(element.subject)}`,
 							teacher: element.teacher,
@@ -75,6 +75,7 @@
 					});
 					
 				});
+				console.log(this.timetable)
 				this.dataLoaded = true;
 			},
 			GetCellIndex(element){
@@ -137,17 +138,42 @@
 					))
 				console.log(this.cellTimingInt)
 			},
-			GetTableCLass(pairs){
-				if(pairs!=null && pairs.length>0) return "table-danger table-bordered border-dark"
-			}
+			GetTableCLass(wi,di,pi,pairs){
+				var res = ""
+				if(this.CheckCurentDateAndTime(wi,di,pi)){
+					res += "current-day "
+					console.log(11111);
+				} 
+				else res += "table-bordered border-dark "
+				if(pairs!=null && pairs.length>0) res += "table-danger  "
+				return res
+			},
+			CheckCurentDateAndTime(week, day, pair){
+				if(this.CheckCurentDate(week,day)){
+					var tmp = this.getTimeInt(new Date())
+					return (tmp>= this.cellTimingInt[pair] &&
+					 		( this.cellTimingInt.length > (pair+1) && tmp < this.cellTimingInt[pair+1]))
+				}
+				return false
+			},
+			CheckCurentDate(week,day){
+				//1000*60*60*24=86400000 Умножение менее затратно чем деление
+				return((week*7+day)*86400000 == (this.today - this.firstWeek))
+			},
 		},
 		async mounted(){
 			this.CreateIntTiming();
-
+			
+			this.today = new Date(new Date().toDateString())
 			this.style = this.$route.query["style"] 
 			if(this.style == null) this.style = "default"
-
+			this.GetCurrentFirstWeek()
 			await this.LoadData();
+
+			var current = $(".current-day")[0]
+			if(current!=null){
+				current.scrollIntoView({behavior: "smooth"})
+			}
 		}
 	}
 </script>
@@ -159,12 +185,16 @@
 			<table :class="`table ${this.style=='maxim'? 'table-success':''} table-bordered border-dark`">
 				<thead>
 					<tr>
+						<th></th>
 						<th scope="col" v-for="item in this.cellTiming">{{item}}</th>
 					</tr>
 				</thead>
 				<tbody>
-					<tr v-for="day in week">
-						<td :class="this.GetTableCLass(pair)" v-for="pair in day">
+					<tr v-for="(day,di) in week">
+						<td>
+							{{ this.dayOfWeek[di] }}
+						</td>
+						<td :class="this.GetTableCLass(wi, di, pi, pair)" v-for="(pair,pi) in day">
 							<div class="text-center d-flex flex-column m-0" v-for="lesson in pair">
 								<p class="m-0">{{lesson.subject}}</p>
 								<a class="text-wrap m-0" :href="`/timetable/${lesson.teacher}`">{{lesson.teacher}}</a>
@@ -183,5 +213,9 @@
 <style scoped>
 a{
 	color: black !important;
+}
+.current-day{
+	border: solid;
+	border-width: thick;
 }
 </style>
