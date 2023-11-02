@@ -140,12 +140,11 @@
 			},
 			GetTableCLass(wi,di,pi,pairs){
 				var res = ""
-				if(this.CheckCurentDateAndTime(wi,di,pi)){
-					res += "current-day "
-					console.log(11111);
-				} 
+				if(this.CheckCurentDateAndTime(wi,di,pi)) res += "current-day "
 				else res += "table-bordered border-dark "
 				if(pairs!=null && pairs.length>0) res += "table-danger  "
+				else if(pi == 0 || pi==7 || di==5 || di==6) res+="table-warning "
+				else res+="table-success"
 				return res
 			},
 			CheckCurentDateAndTime(week, day, pair){
