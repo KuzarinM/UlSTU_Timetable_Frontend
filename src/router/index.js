@@ -3,6 +3,7 @@ import Login from '../components/Login.vue'
 import UserInfo from '../components/UserInfo.vue'
 import Timetable from '../components/Timetable.vue'
 import Groups from '../components/Groups.vue'
+import WorkTimetable from '../components/WorkTimetable.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -10,6 +11,15 @@ const router = createRouter({
     {
       path:"/",
       redirect:"/search/groups"
+    },
+    {
+      path: '/worktimetable/:group',
+      name: 'worktimetable',
+      component: WorkTimetable,
+      meta:{
+        authorized:false,
+        adminOnly:false
+      }
     },
     {
       path: '/search/:area',
