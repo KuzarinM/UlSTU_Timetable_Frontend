@@ -1,11 +1,13 @@
 <script>
 	import $ from "jquery"; 
-	import APIHelper from "../mixins/APIHelper.js";
-	import {sql} from "@vercel/postgres";
 	import { VueScreenSizeMixin } from 'vue-screen-size';
+	import TimetableObjectApiMixine from "../mixins/TimetableObjectApiMixine";
     
 	export default{
-		mixins:[APIHelper, VueScreenSizeMixin],
+		mixins:[
+			TimetableObjectApiMixine, 
+			VueScreenSizeMixin
+		],
 		data(){
 			return{
 				list:[],
@@ -16,50 +18,26 @@
 		},
 		methods:{
 			async LoadData(){
+				var search = this.$route.query.search;
 
 				switch (this.$route.params.area) {
 					case "groups":
 						this.area = "g"
+						this.list = await this.GetGroupList(0, 1000, search)
 						break;
 					case "teachers":
 						this.area = "t"
+						this.list = await this.GetTeacherList(0, 1000, search)
 						break;
 					case "places":
 						this.area = "p"
+						this.list = await this.GetPlacesList(0, 1000, search)
 						break;
 				}
-				var search = this.$route.query.search;
 
-				if(search != null && search != ""){
-					search += "%"
-					switch (this.area) {
-						case "g":
-							this.list = (await sql`SELECT * FROM "Group" WHERE LOWER(name) LIKE LOWER(${search})`).rows;
-							break;
-						case "t":
-							this.list = (await sql`SELECT * FROM teacher WHERE LOWER(name) LIKE LOWER(${search})`).rows;
-							break;
-						case "p":
-							this.list = (await sql`SELECT * FROM place WHERE LOWER(name) LIKE LOWER(${search})`).rows;
-							break;
-					}
-					
-				}
-				else{
-					switch (this.area) {
-						case "g":
-							this.list = (await sql`SELECT * FROM "Group"`).rows;
-							break;
-						case "t":
-							this.list = (await sql`SELECT * FROM teacher`).rows;
-							break;
-						case "p":
-							this.list = (await sql`SELECT * FROM place`).rows;
-							break;
-					}
-				}
-
-				this.list = this.list.sort((a,b)=>a.name.localeCompare(b.name))
+				console.log(this.list)
+				
+				this.list = this.list.body.sort((a,b)=>a.name.localeCompare(b.name))
 
 				this.dataLoaded = true
 			},

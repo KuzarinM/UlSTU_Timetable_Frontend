@@ -1,26 +1,18 @@
-import { fileURLToPath, URL } from 'node:url'
-
-import { defineConfig, loadEnv  } from 'vite'
+import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import dotenvExpand from 'dotenv-expand';
 
-
-export default defineConfig(({ command, mode }) => {
-
-  const env = loadEnv(mode, process.cwd(), '');
-  dotenvExpand.expand({ parsed: env });
-  
-return  { 
-  plugins: [
-  vue(),
-],
-resolve: {
-  alias: {
-    '@': fileURLToPath(new URL('./src', import.meta.url))
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [vue()],
+  server: {
+    proxy: {
+      // Проксируем все запросы с таким вот
+      '^/proxy/.*': {
+        target: 'http://localhost:5170', // Целевой url
+        changeOrigin: true, // меняем origin. Возможно оно нам надо
+        secure: false, // Отключаем проверки сертификата
+        rewrite: (path) => path.replace(/^\/proxy/, '') // Вырезаем слово proxy
+      }
+    }
   }
-},
-define: {
-  'process.env': process.env
-}
-}
-});
+})

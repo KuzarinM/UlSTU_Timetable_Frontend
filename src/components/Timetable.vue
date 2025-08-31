@@ -3,9 +3,15 @@
 	import APIHelper from "../mixins/APIHelper.js";
 	import {sql} from "@vercel/postgres";
 	import Pair from './Pair.vue'
+	import TimetableApiMixine from "../mixins/TimetableApiMixine.js";
+	import TimetableObjectApiMixine from "../mixins/TimetableObjectApiMixine.js";
     
 	export default{
-		mixins:[APIHelper],
+		mixins:[
+			APIHelper,
+			TimetableObjectApiMixine,
+			TimetableApiMixine
+		],
 		components:{
 			Pair
 		},
@@ -46,30 +52,66 @@
 			capitalizeFirstLetter(string) {
 				return string.charAt(0).toUpperCase() + string.slice(1);
 			},
+			async GetTimetableByObjectName(name){
+
+				var groupRaw = await this.GetGroup(undefined,name)
+				if(groupRaw.code == 200)
+				{
+					var groupTimetable = await this.GetGroupTimetable(groupRaw.body.id)
+					return groupTimetable.body
+				}
+
+				var teacherRaw = await this.GetTeacher(undefined,name)
+
+				if(teacherRaw.code == 200)
+				{
+					var teacherTimetable = await this.GetTeacherTimetable(teacherRaw.body.id)
+					return teacherTimetable.body
+				}
+
+				var placeRaw = await this.GetPlace(undefined,name)
+
+				if(placeRaw.code == 200)
+				{
+					var placeTimetable = await this.GetPlaceTimetable(placeRaw.body.id)
+					return placeTimetable.body
+				}
+			},
+
 			async LoadData(){
 				var group = this.$route.params.group
-				var rows = await this.LoadObjectsFromDB(group);
-				console.log(this.myObject)
-
-				if(rows == null) return;
 				
-				rows.forEach(element => {
-					if(this.timetable[element.week?1:0][element.day][element.pair] == null){
-						this.timetable[element.week?1:0][element.day][element.pair] = []
+				var timetable = await this.GetTimetableByObjectName(group)
+
+				for (let index = 0; index < timetable.length; index++) {
+					const element = timetable[index];
+
+					if(this.timetable[element.subject.week?1:0][element.subject.dayOfWeak][element.subject.pairNumber] == null){
+						this.timetable[element.subject.week?1:0][element.subject.dayOfWeak][element.subject.pairNumber] = []
 					}
-					this.timetable[element.week?1:0][element.day][element.pair].push({
-						subject: `${this.capitalizeFirstLetter(element.type)}. ${this.capitalizeFirstLetter(element.subject)}`,
-						teacher: element.teacher,
-						place: element.place,
-						isDif: element.isdifference,
-						type :  element.type,
-						pairNumber: element.pair,
-						group:element.group,
-						groups:[element.group],
-						places:[element.place],
-						teachers:[element.teacher]
+					this.timetable[element.subject.week?1:0][element.subject.dayOfWeak][element.subject.pairNumber].push({
+						subject: `${this.capitalizeFirstLetter(element.subject.type)}. ${this.capitalizeFirstLetter(element.d_name)}`,
+						teacher: element.t_name,
+						place: element.p_name,
+						isDif: element.subject.isDifference,
+						type :  element.subject.type,
+						pairNumber: element.subject.pairNumber,
+						group:element.g_name,
+						groups:[element.g_name],
+						places:[element.p_name],
+						teachers:[element.t_name]
 					}) 
-				});
+					
+				}
+
+				// var rows = await this.LoadObjectsFromDB(group);
+				// console.log(this.myObject)
+
+				// if(rows == null) return;
+				
+				// rows.forEach(element => {
+					
+				// });
 
 				console.log(this.timetable)
 				this.dataLoaded = true;

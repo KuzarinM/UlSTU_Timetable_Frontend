@@ -1,9 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Login from '../components/Login.vue'
-import UserInfo from '../components/UserInfo.vue'
+import LoginPage from '../components/LoginPage.vue'
+import AdminPage from '../components/AdminPage.vue'
 import Timetable from '../components/Timetable.vue'
 import Groups from '../components/Groups.vue'
-import WorkTimetable from '../components/WorkTimetable.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -11,15 +10,6 @@ const router = createRouter({
     {
       path:"/",
       redirect:"/search/groups"
-    },
-    {
-      path: '/worktimetable/:group',
-      name: 'worktimetable',
-      component: WorkTimetable,
-      meta:{
-        authorized:false,
-        adminOnly:false
-      }
     },
     {
       path: '/search/:area',
@@ -42,35 +32,19 @@ const router = createRouter({
     {
       path: '/login',
       name: 'login',
-      component: Login,
+      component: LoginPage,
       meta:{
         authorized:false,
         adminOnly:false
       }
     },
     {
-      path: '/registration',
-      name: 'registration',
-      component: UserInfo,
-      meta:{
-        authorized:false,
-        adminOnly:false
-      },
-      props:{
-        isRegistration:true
-      }
-    },
-    {
-      path: '/user',
-      name: 'user',
-      component: UserInfo,
+      path: '/admin',
+      name: 'admin',
+      component: AdminPage,
       meta:{
         authorized:true,
-        adminOnly:false
       },
-      props:{
-        isRegistration:false
-      }
     },
   ]
 })
@@ -78,15 +52,10 @@ router.beforeEach(Check)
 
 function Check(to, from, next)
 {
-  if(to.meta.authorized && sessionStorage.getItem("token")===null){
+  if(to.meta.authorized && localStorage.getItem("accessToken")===null){
       next({
         path: '/login'
       })
-  }
-  if(to.meta.adminOnly && sessionStorage.getItem("role")!=="ADMIN"){
-    next({
-      path: from.path
-    })
   }
   next()
 }

@@ -49,7 +49,7 @@ const APIHelper = {
             return null
         },
         logout(){
-            sessionStorage.removeItem("token")
+            localStorage.removeItem("accessToken")
             sessionStorage.removeItem("user")
             sessionStorage.removeItem("role")
             location = location
@@ -58,7 +58,7 @@ const APIHelper = {
             return sessionStorage.getItem("user")
         },
         isAuthtorised(){
-            return sessionStorage.getItem("token")!=null
+            return localStorage.getItem("accessToken")!=null
         },
         isRole(role){
             return sessionStorage.getItem("role") == role
