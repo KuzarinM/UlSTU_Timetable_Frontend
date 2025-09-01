@@ -45,7 +45,9 @@
 				error:"",
 				style:"default",
 				firstWeek:null,
-				today:null
+				today:null,
+				differenceMod:false,
+				key: 1
 			}
 		},
 		methods:{
@@ -206,7 +208,19 @@
 <template>
 	<article class="d-flex flex-column mx-auto" v-if="this.dataLoaded">
 		<h2 class="text-center">{{ this.GetMyObjectName() }}</h2>
-		<div class="flex-column">
+		<div class="form-check form-switch me-3 ms-auto">
+			<input
+				class="form-check-input"
+				type="checkbox"
+				v-model="this.differenceMod"
+				@change="this.key++"
+			/>
+			<h5 class="form-check-label">
+				Отобразить только последние отличия
+			</h5>
+		</div>
+		
+		<div class="flex-column" :key="this.key">
 			<div class="table-responsive d-flex flex-column justify-content-center" v-for="(week, wi) in this.timetable">
 				<h1 class="text-center">{{ wi!=0?"Чётная неделя": "Нечётная неделя" }}</h1>
 				<!--Это таблица для вывода в десктопной версии-->
@@ -227,8 +241,16 @@
 							<td scope="row">
 								<H3 class="text-center">{{this.dayOfWeek[di]}}</H3>
 							</td>
-							<Pair v-for="(dayPairs, pi) in day" :pairs="dayPairs" :week-number="wi" :day-number="di" :pair-number="pi" 
-								:PairIsNowFunc="this.CheckCurentDateAndTime" :-is-desctop="true" :timetable-type="this.myObject.type"/>
+							<Pair v-for="(dayPairs, pi) in day" 
+								:pairs="dayPairs" 
+								:week-number="wi" 
+								:day-number="di" 
+								:pair-number="pi" 
+								:PairIsNowFunc="this.CheckCurentDateAndTime" 
+								:-is-desctop="true" 
+								:timetable-type="this.myObject.type"
+								:differenceMod="this.differenceMod"	
+							/>
 						</tr>
 					</tbody>
 				</table>
@@ -244,13 +266,21 @@
 							</tr>
 						</thead>
 						<tbody>
-							<tr v-for="(pairs, pi) in day.filter(x=>x!=null && x.filter(y=>y.isDif!=0).length > 0)" >
+							<tr v-for="(pairs, pi) in day.filter(x=>x!=null && x.filter(y=>y.isDif!=0 || differenceMod).length > 0)" >
 
-								<Pair :pairs="pairs" :week-number="wi" :day-number="di" :pair-number="day.indexOf(pairs)" 
-									:PairIsNowFunc="this.CheckCurentDateAndTime" :-is-desctop="false" :pair-timing="this.pairTiming"
-									:timetable-type="this.myObject.type"/>
+								<Pair 
+									:pairs="pairs" 
+									:week-number="wi" 
+									:day-number="di" 
+									:pair-number="day.indexOf(pairs)" 
+									:PairIsNowFunc="this.CheckCurentDateAndTime" 
+									:-is-desctop="false" 
+									:pair-timing="this.pairTiming"
+									:timetable-type="this.myObject.type"
+									:differenceMod="this.differenceMod"	
+								/>
 							</tr>
-							<tr v-if="!day.some(x => x != null && x.filter(y => y.isDif != 0).length > 0)">
+							<tr v-if="!day.some(x => x != null && x.filter(y => y.isDif != 0 || differenceMod).length > 0)">
 								<td>-</td>
 							</tr>
 						</tbody>
