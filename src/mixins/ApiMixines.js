@@ -3,7 +3,8 @@ export default {
     data(){
         return {
             __refrashUrl: "/User/refrash",
-            __refrashTokenQueryFieldName:"refrashToken"
+            __refrashTokenQueryFieldName:"refrashToken",
+            isLoggedIn: false
         }
     },
     methods:{
@@ -209,16 +210,26 @@ export default {
         },
         __setAccesToken(token){
 
-            if(token == null)
+            if(token == null){
                 localStorage.removeItem("accessToken")
-            else
+                this.isLoggedIn = false;
+            }
+            else{
                 localStorage.setItem("accessToken", token)
+                this.isLoggedIn = true;
+            }
+
         },
         __setRefrashToken(token){
-            if(token == null)
+            if(token == null){
                 localStorage.removeItem("refrashToken")
-            else
+                this.isLoggedIn = false;
+            }
+            else{
                 localStorage.setItem("refrashToken", token)
+                this.isLoggedIn = true;
+            }
+
         },
         __setUserName(name){
             if(name == null)

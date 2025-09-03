@@ -79,7 +79,6 @@
 					return placeTimetable.body
 				}
 			},
-
 			async LoadData(){
 				var group = this.$route.params.group
 				
@@ -152,7 +151,7 @@
 			},
 			CheckCurentDateAndTime(week, day, pair){
 				if(this.CheckCurentDate(week,day)){
-					var tmp = this.getTimeInt(new Date())
+					var tmp = this.getTimeInt(this.today)
 					return (tmp>= this.pairTimingInt[pair] &&
 					 		( this.pairTimingInt.length > (pair+1) && tmp < this.pairTimingInt[pair+1]))
 				}
@@ -184,12 +183,32 @@
 						return `Аудитория ${this.myObject.name}`
 
 				}
+			},
+			GetCurrentTimeInUl(){
+				const now = new Date(); // Используем объект Date напрямую
+
+				const targetTimeZone = 'Europe/Ulyanovsk';
+				const options = {
+					year: 'numeric',
+					month: 'numeric',
+					day: 'numeric',
+					hour: 'numeric',
+					minute: 'numeric',
+					second: 'numeric',
+					timeZone: targetTimeZone
+				};
+
+				const formatter = new Intl.DateTimeFormat('en-US', options);
+				const res = formatter.format(now);
+
+				console.log(`Time: ${res}`);
+				return res;
 			}
 		},
 		async mounted(){
 			var process = this.process//Thanks vue for 'good' system of env. Without this do not work DB
 
-			this.today = new Date(new Date().toDateString())
+			this.today = new Date(this.GetCurrentTimeInUl())
 			this.GetCurrentFirstWeek();
 
 			this.style = this.$route.query["style"] 
@@ -208,7 +227,7 @@
 <template>
 	<article class="d-flex flex-column mx-auto" v-if="this.dataLoaded">
 		<h2 class="text-center">{{ this.GetMyObjectName() }}</h2>
-		<div class="form-check form-switch me-3 ms-auto">
+		<div class="form-check form-switch ms-md-auto me-3 ms-3">
 			<input
 				class="form-check-input"
 				type="checkbox"

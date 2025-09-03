@@ -2,13 +2,6 @@
 /* #app{
   background-color: #bbf5ba !important;
 } */
-
-header{
-  border-style: solid;
-  border-radius: 0px 0px 8px 8px;
-  border-width: 0px 2px 3px 2px;
-}
-
 a,
 .green {
   text-decoration: none;
@@ -65,5 +58,9 @@ a,
 @media only screen and (min-width: 768px) {
   .w-md-85{
     width: 85%!important; 
+  }
+
+  .ms-md-auto{
+    margin-left: auto!important;
   }
 }

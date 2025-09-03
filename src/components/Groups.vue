@@ -13,7 +13,8 @@
 				list:[],
 				dataLoaded:false,
 				columnCount:1,
-				area:"g"
+				area:"g",
+				search:""
 			}
 		},
 		methods:{
@@ -44,14 +45,33 @@
 			resise(e){
 				this.wight = window.innerWidth;
 				this.columnCount = window.innerWidth  / 160 | 0
+			},
+			find(){
+				var quries = JSON.parse(JSON.stringify(this.$route.query));
+
+				quries["search"]=this.search
+
+				this.$router.push(
+					{
+						path: this.$route.fullPath,
+						query: quries, 
+						params: this.$route.params 
+					}
+				);
+
+				return false
 			}
 		},
 		created(){
 			window.addEventListener("resize", this.resise)
 		},
 		async mounted(){
-			var process = this.process//Thanks vue for 'good' system of env. Without this do not work DB
+			await this.$router.isReady()
+
+			this.search = this.$route.query.search
+
 			await this.LoadData();
+
 			this.resise(1);
 		}
 	}
@@ -59,9 +79,23 @@
 
 <template>
 	<article>
+		<div class="m-3">
+			<form class="d-flex my-3 my-lg-0" @submit="find">
+				<input 
+					class="form-control me-sm-2 my-2" 
+					name="search" 
+					placeholder="Введите поисковой запрос" 
+					type="text"
+					v-model="search"
+				>
+				<button class="btn btn-outline-success my-2 ms-2" type="submit">Поиск</button>
+			</form>
+		</div>
+
+
 		<ul class="list-unstyled card-columns" :style="`column-count : ${this.columnCount};`">
 			<li class="mx-3" v-for="item in this.list" >
-				<a :href="`/timetable/${item.name}`">{{ item.name }}</a>
+				<router-link :to="`/timetable/${item.name}`" class="green" >{{ item.name }}</router-link>
 			</li>
 			
 		</ul>

@@ -74,7 +74,7 @@ export default{
                 />
             </div>
 
-            <div class="form-check">
+            <div class="form-check my-auto mx-1">
                 <input
                     class="form-check-input"
                     type="checkbox"
@@ -86,7 +86,7 @@ export default{
                 <label class="form-check-label" for=""> Нужно ли устроить силовое обновление </label>
             </div>
 
-            <div class="form-check">
+            <div class="form-check my-auto mx-1">
                 <input
                     class="form-check-input"
                     type="checkbox"

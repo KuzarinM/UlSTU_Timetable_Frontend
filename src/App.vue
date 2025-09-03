@@ -1,66 +1,109 @@
 <script>
   import { RouterLink, RouterView } from 'vue-router'
   import $ from "jquery"; 
-  import APIHelper from "./mixins/APIHelper.js";
+  import { Collapse } from 'bootstrap';
+  import ApiMixines from './mixins/ApiMixines.js';
 
   export default{
-    mixins:[APIHelper]
+    mixins:[
+      ApiMixines
+    ],
+    data() {
+      return {
+        bsCollapse: null,
+        isUserLoggedIn:false
+      };
+    },
+    methods: {
+      toggleNavbar() {
+        this.bsCollapse.toggle();
+      },
+      closeNavbar() {
+        // Обращаемся к DOM-элементу через this.$refs и к экземпляру Collapse через this.
+        if (this.$refs.collapsibleNav.classList.contains('show')) {
+          this.bsCollapse.hide();
+        }
+      },
+      logout(){
+        this.__setAccesToken(null)
+        this.__setRefrashToken(null)
+      }
+    },
+     watch: {
+      isLoggedIn(newQuestion, oldQuestion) {
+        this.isUserLoggedIn = newQuestion
+      }
+    },
+    mounted() {
+      this.bsCollapse = new Collapse(this.$refs.collapsibleNav, {
+        toggle: false,
+      });
+
+      this.isLoggedIn = !!this.__getAccessToken()
+
+      console.log(this.isLoggedIn)
+    },
   }
 
 </script>
 
 <template>
-  <header class="mx-1">
-      <div class="">
-        <nav class="navbar navbar-expand-sm navbar-light bg-light container m-2 w-100">
-          <a class="navbar-brand" href="/">
-            <img src="/timetable.ico" height="80" class="m-0">
-          </a>
+<header class="mx-1">
+    <nav class="navbar navbar-expand-sm navbar-light bg-light  p-2 w-100">
+      <router-link class="navbar-brand" to="/">
+        <img src="/timetable.ico" height="80" class="m-0">
+      </router-link>
 
-          <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="collapse"
-           data-bs-target="#collapsibleNavId" aria-controls="collapsibleNavId" aria-expanded="true" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="collapsibleNavId">
-            <ul class="navbar-nav me-auto mt-2 mt-lg-0 w-100 " style="justify-content: space-between;">
-              <div class="d-flex flex-column flex-md-row">
-                <li class="nav-item">
-                    <a class="nav-link active" href="/search/groups">Группы</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active" href="/search/teachers">Преподаватели</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active" href="/search/places">Аудитории</a>
-                </li>
-                <li class="nav-item">
-                  <form class="d-flex my-2 my-lg-0" >
-                    <input class="form-control me-sm-2" name="search" type="text" >
-                    <button class="btn btn-outline-success my-2 " type="submit">Поиск</button>
-                  </form>
-                </li>
-              </div>
-              
-              <div v-if="this.isAuthtorised()" class="d-flex flex-column flex-md-row">
-                <li class="nav-item">
-                  <a class="nav-link active" href="/admin">Админка</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link active" @click="logout()">Выйти</a>
-                </li>
-              </div>
-              <div v-else>
-                <li class="nav-item">
-                  <a class="nav-link active" href="/login">Войти</a>
-                </li>
-              </div>
-            </ul>
+      <button 
+        class="navbar-toggler d-lg-none" 
+        type="button" 
+        aria-controls="collapsibleNavId" 
+        aria-expanded="true" 
+        aria-label="Toggle navigation"
+        @click="toggleNavbar"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="collapsibleNavId" ref="collapsibleNav">
+        <ul class="navbar-nav me-auto mt-2 mt-lg-0 w-100" style="justify-content: space-between;">
+          <div class="d-flex flex-column flex-md-row">
+            <li class="nav-item">
+              <router-link to="/search/groups" class="nav-link" @click="closeNavbar">Группы</router-link>
+            </li>
+            <li class="nav-item">
+              <router-link to="/search/teachers" class="nav-link" @click="closeNavbar">Преподаватели</router-link>
+            </li>
+            <li class="nav-item">
+              <router-link to="/search/places" class="nav-link" @click="closeNavbar">Аудитории</router-link>
+            </li>
           </div>
-      </nav>
+          <div v-if="isUserLoggedIn" class="d-flex flex-column flex-md-row">
+              <li class="nav-item">
+                <router-link to="/admin" class="nav-link">Админка</router-link>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" @click="logout()" style="cursor: pointer;">Выйти</a>
+              </li>
+            </div>
+            <div v-else>
+              <li class="nav-item">
+                <router-link to="/login" class="nav-link">Войти</router-link>
+              </li>
+            </div>
+          </ul>
       </div>
+    </nav>
   </header>
-  <RouterView />
+  <RouterView :key="$route.fullPath" />
 </template>
 
 <style scoped>
+
+nav{
+  border-style: solid;
+  border-radius: 0px 0px 8px 8px;
+  border-width: 0px 2px 3px 2px;
+}
+
 </style>
