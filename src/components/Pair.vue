@@ -67,7 +67,6 @@
 						{
 							this.data.push(tmp[key])
 						}
-						console.log(this.data)
 					}
 					else{
 						this.data = this.pairs.filter(x=>x.isDif != this.excludedNumber)

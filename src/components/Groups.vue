@@ -35,8 +35,6 @@
 						this.list = await this.GetPlacesList(0, 1000, search)
 						break;
 				}
-
-				console.log(this.list)
 				
 				this.list = this.list.body.sort((a,b)=>a.name.localeCompare(b.name))
 

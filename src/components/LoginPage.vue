@@ -15,32 +15,36 @@ export default{
     ],
     methods:{
         async LogIn(){
-
             var res = await this.LogInAsUser(this.login, this.password)
-
-            var user = res.code == 200 && res.body != null && res.body != undefined && res.body.length >0 
-            ? res.body[0]
-            : null;
-
+            // Логика получения user зависит от ответа. Swagger просто говорит "Success". 
+            // Предполагаем, что токены уже установлены или возвращены в body.
+            // Старый код пытался извлечь body[0]
+            
             if(res.code == 200){
-                this.__setAccesToken(res.body)
-                //this.__setRefrashToken(res.body.refrachToken)
-                //this.__setUserName(res.body.login)
+                // Если API возвращает JSON с токеном, ApiMixines должен это обработать или мы делаем это тут
+                if(res.body && res.body.accessToken){
+                    this.__setAccesToken(res.body.accessToken)
+                    // this.__setRefreshToken(...) // Если сервер возвращает его
+                } else if (res.body && typeof res.body === 'string' && res.body.length > 10) {
+                     // Если возвращается просто строка токена
+                     this.__setAccesToken(res.body)
+                }
+
                 console.log("Success");
                 this.$router.go(-1)
             }
             else if(res.code == 400)
             {
                 console.log(res.text)
-                this.$refs.login.innerText = res.text
-                    this.isEmailValid = false;
-                    this.isPassowrdValid = true;
+                if(this.$refs.login) this.$refs.login.innerText = res.text
+                this.isEmailValid = false;
+                this.isPassowrdValid = true;
             }
             return false
         },
         clearData(){
             this.__setAccesToken(null)
-            this.__setRefrashToken(null)
+            this.__setRefreshToken(null)
             this.__setUserName(null)
         }
     },
@@ -49,7 +53,6 @@ export default{
     }
 }
 </script>
-
 <template>
     <h1 class="text-center">Вход</h1>
     <form 
@@ -59,10 +62,10 @@ export default{
     >
         <div class="d-flext flex-column mb-3">
             <label for="" class="form-label fs-4">Логин</label>
-            <input
-                type="text"
+            <input 
+                type="text" 
                 required
-                class="form-control"
+                class="form-control" 
                 aria-describedby="helpId"
                 ref="loginInput"
                 v-model="this.login"
@@ -71,24 +74,23 @@ export default{
         </div>
         <div class="d-flext flex-column mb-3">
             <label for="" class="form-label fs-4">Пароль</label>
-            <input
-                type="password"
+            <input 
+                type="password" 
                 required
-                class="form-control"
+                class="form-control" 
                 minlength="2"
-                aria-describedby="helpId"
-                
+                aria-describedby="helpId"                
                 v-model="this.password"
             />
             <small id="helpId" ref="password" :hidden="this.isPassowrdValid" class="form-text text-danger">Help text</small>
         </div>
         <div class="d-flext flex-column mb-3">
-            <button
-                type="submit"
+            <button 
+                type="submit" 
                 class="btn btn-success w-100"
             >
                 Войти
             </button>
-        </div> 
-    </form>
-</template>   
+        </div>
+     </form>
+</template>

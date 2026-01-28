@@ -37,6 +37,15 @@ const TimetableApiMixine ={
                     pid: placeId
                 }
             ));
+        },
+        async GetFirstWeeekAsync(){
+            return await this.__CreateResponce(await this.__makeRequest(
+                "GET",
+                "/timetable/firstWeek",
+                null,
+                null,
+                null
+            ));
         }
      }
 }
